@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  
+  <div class="container" id="cnt">
+     <!-- Brand Credit -->
+    <div class="brand-credit">
+      <small>Built by <a href="https://shelfsight.co" target="_blank">shelfsight.co</a></small>
+     </div>
+
+    <!-- Error Banner -->
+    <div id="errorBanner" class="error-banner hidden">
+      <span>Connection lost. Please refresh the page to continue</span>
+      <button id="refreshButton" class="refresh-button">Refresh</button>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <h1 id="heading-text">Walmart Search Analyzer</h1>
+      <div class="header-buttons">
+        <button id="generateReportButton" class="icon-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <polyline points="16 6 12 2 8 6"></polyline>
+            <line x1="12" y1="2" x2="12" y2="15"></line>
+          </svg>
+        </button>
+        <button id="settingsButton" class="icon-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+   <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Analysis Settings</h2>
+          <button class="close-button">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>Results Range:</label>
+            <div class="toggle-group">
+              <button class="toggle-button active" data-value="fullPage">Full Page</button>
+              <button class="toggle-button" data-value="top10">Top 10</button>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>Sponsored Results:</label>
+            <div class="toggle-group">
+              <button class="toggle-button active" data-value="include">Include</button>
+              <button class="toggle-button" data-value="exclude">Exclude</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="applySettings" class="primary-button">Apply & Analyze</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-container">
+      <div class="loading-spinner"></div>
+      <div>Analyzing products...</div>
+    </div>
+
+    <!-- Results Area -->
+    <div id="resultsArea" class="hidden">
+      <div class="counts-summary">
+        <div class="count-item">
+          <div class="label">Total Search Results</div>
+          <div id="totalSearchResults" class="value">-</div>
+        </div>
+        <div class="count-item">
+          <div class="label">Total Ads</div>
+          <div id="totalAds" class="value">-</div>
+        </div>
+        <div class="count-item">
+          <div class="label">% Ads</div>
+          <div class="value">
+            <span id="adPercentage">-</span>
+            <span id="competitionIndicator" class="competition-indicator"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brand Share Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>Brand Share of 1st Page Results</h2>
+          <button id="copyButton" class="secondary-button">Copy Results</button>
+        </div>
+        <div class="table-container">
+          <table id="brandTable">
+            <thead>
+              <tr>
+                <th>Brand</th>
+                <th>Product Count</th>
+                <th>Share (%)</th>
+                <th>Sponsored (ads)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button id="expandBrands" class="expand-button hidden">Show All Brands</button>
+      </div>
+
+      <!-- Search Summary Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>Search Summary</h2>
+          <button id="copySummaryButton" class="secondary-button">Copy Summary</button>
+        </div>
+        <div class="metrics-container">
+          <div id="price-distribution" class="metric-group">
+            <div class="metric-header">Price Distribution</div>
+            <div class="metric-visualization">
+              <div class="range-bar">
+                <div class="range-fill"></div>
+                <div class="range-average"></div>
+              </div>
+              <div class="range-labels">
+                <div class="label-group">
+                  <div class="label">Min</div>
+                  <div class="range-min value">-</div>
+                </div>
+                <div class="label-group">
+                  <div class="label">Avg</div>
+                  <div class="range-avg value">-</div>
+                </div>
+                <div class="label-group">
+                  <div class="label">Max</div>
+                  <div class="range-max value">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="rating-distribution" class="metric-group">
+            <div class="metric-header">Rating Distribution</div>
+            <div class="metric-visualization">
+              <div class="range-bar">
+                <div class="range-fill"></div>
+                <div class="range-average"></div>
+              </div>
+              <div class="range-labels">
+                <div class="label-group">
+                  <div class="label">Min</div>
+                  <div class="range-min value">-</div>
+                </div>
+                <div class="label-group">
+                  <div class="label">Avg</div>
+                  <div class="range-avg value">-</div>
+                </div>
+                <div class="label-group">
+                  <div class="label">Max</div>
+                  <div class="range-max value">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="review-distribution" class="metric-group">
+            <div class="metric-header">Review Count Distribution</div>
+            <div class="metric-visualization">
+              <div class="range-bar">
+                <div class="range-fill"></div>
+                <div class="range-average"></div>
+              </div>
+              <div class="range-labels">
+                <div class="label-group">
+                  <div class="label">Min</div>
+                  <div class="range-min value">-</div>
+                </div>
+                <div class="label-group">
+                  <div class="label">Avg</div>
+                  <div class="range-avg value">-</div>
+                </div>
+                <div class="label-group">
+                  <div class="label">Max</div>
+                  <div class="range-max value">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Products Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>Products</h2>
+          <button id="copyListButton" class="secondary-button">CopyProduct List</button>
+          <button id="screenshotButton" class="secondary-button">Capture Screenshot</button>
+        </div>
+        <div class="table-container">
+          <table id="productTable">
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Rating</th>
+                <th>Reviews</th>
+                <th>Sponsored</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+     
+      <div class="section">
+        <div class="section-header">
+            <h2>Actions</h2>
+            <div class="button-group">
+                <button id="generateReportButton2" class="secondary-button">Share Report</button>
+            </div>
+        </div>
+      </div>
+      
+    <!-- Status Message -->
+  <div id="status" class="status-message hidden"></div>
+  </div>
+
+
+  
+  <!-- Sticky Footer -->
+  <div class="sticky-footer">
+    <div class="footer-content">
+      <span>Setup daily tracking for $10/month</span>
+      <a href="https://shelfsight.co/#daily" target="_blank" class="footer-button">Buy Now</a>
+    </div>
+  </div>
+
+ 
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

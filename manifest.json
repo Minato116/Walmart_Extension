@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Walmart Search Analyzer",
+  "version": "3.6",
+  "description": "Analyzes Walmart search results for brand share and product metrics",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.walmart.com/*",
+    "https://script.google.com/*" 
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.walmart.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["content.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+  
+}

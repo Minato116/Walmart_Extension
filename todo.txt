@@ -1,0 +1,114 @@
+- On report generator add URL, Search Term, product position, product link, flag for sponsored product in table,  list of advertisors 
+- Copy all data out 
+- generate summary template in canva w/ watermark
+- add search extraction for amazon, target, lowes
+- generate new title and descriptions 
+
+
+
+Evaluation of PDP script to be triggerd on urls like this https://www.walmart.com/ip/Purina-Dog-Chow-Complete-Dry-Dog-Food-for-Adult-Dogs-High-Protein-Real-Chicken-44-lb-Bag/1446707820?
+// Core data extraction
+const container = document.querySelector('[data-testid="vertical-carousel-container"]');
+const images = container.querySelectorAll('img');
+const title = document.querySelector('#main-title');
+const description = document.querySelector('[data-testid="ui-collapse-panel"] .dangerous-html');
+const text = description.textContent;
+const words = text.split(/[\s\n]+/).filter(word => word.match(/[\w™®*()]/));
+const listItems = document.querySelector('[data-testid="ui-collapse-panel"] .dangerous-html ul').children.length;
+const ratingText = document.querySelector('[data-testid="item-review-section-link"]').textContent;
+const ratingCount = parseFloat(ratingText.replace(/[^\d.]/g, '')) * 1000;
+const brandLink = document.querySelector('[data-seo-id="brand-name"]');
+const url = brandLink.getAttribute('href');
+const isValidPattern = url.startsWith('/brand/');
+const sellerInfo = document.querySelector('[data-testid="product-seller-info"]').textContent;
+
+// Get buy box winner
+const buyBoxWinner = sellerInfo.includes('Walmart.com') ? 'Walmart.com' : sellerInfo.match(/by\s+([^\.]+)/)?.[1] || 'Unknown seller';
+
+
+// Validation criteria per Walmart guidelines
+const validations = {
+   images: {
+       criteria: 'Minimum 4 images with white background (RGB 255/255/255)',
+       result: images.length >= 4,
+       actual: images.length
+   },
+   imageFormat: {
+       criteria: 'JPEG/JPG/PNG/BMG, RGB format, max 5MB, min 1000x1000px',
+       result: Array.from(images).every(img => {
+           const src = img.getAttribute('srcset')?.split(' ')[0];
+           return src && src.includes('odnHeight=') && parseInt(src.match(/odnHeight=(\d+)/)[1]) >= 1000;
+       }),
+       actual: 'Format requirements checked'
+   },
+   title: {
+       criteria: '50-75 characters, Brand + Item Name + Model + Style + Key Attributes',
+       result: title.textContent.length >= 50 && title.textContent.length <= 75,
+       actual: title.textContent.length
+   },
+   titleProhibited: {
+       criteria: 'No special chars, retailer info, sales info, or marketing phrases',
+       result: !/[™½@^*]|#1|best|sale|amazon|ebay/i.test(title.textContent),
+       actual: 'Content checked for prohibited terms'
+   },
+   description: {
+       criteria: 'Minimum 150 words with product details and benefits',
+       result: words.length >= 150,
+       actual: words.length
+   },
+   bullets: {
+       criteria: '3-10 bullet points, max 80 chars each',
+       result: listItems >= 3 && listItems <= 10,
+       actual: listItems
+   },
+   ratings: {
+       criteria: 'At least 5 ratings/reviews',
+       result: ratingCount >= 5,
+       actual: ratingCount
+   },
+   brandShop: {
+       criteria: 'Has valid brand shop link (/brand/)',
+       result: isValidPattern,
+       actual: url
+   },
+   buyBox: {
+       criteria: 'Competitive pricing and fast shipping options',
+       result: buyBoxWinner === 'Walmart.com',
+       actual: buyBoxWinner
+   }
+};
+
+// Print validation results
+
+Object.entries(validations).forEach(([key, value]) => {
+
+
+});
+
+// Score calculation based on Walmart's emphasis areas
+const calculateScore = () => {
+   const weights = {
+       images: 15,
+       imageFormat: 10,
+       title: 15,
+       titleProhibited: 10,
+       description: 15,
+       bullets: 10,
+       ratings: 10,
+       brandShop: 5,
+       buyBox: 10
+   };
+
+   let totalScore = 0;
+   let maxScore = 0;
+
+   Object.entries(validations).forEach(([key, value]) => {
+       if (weights[key]) {
+           maxScore += weights[key];
+           if (value.result) totalScore += weights[key];
+       }
+   });
+
+   return (totalScore / maxScore * 100).toFixed(2);
+};
+
